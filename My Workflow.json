@@ -1,0 +1,178 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b245c33d-8114-40e4-8f75-5e40b07b249e",
+      "name": "Telegram Trigger",
+      "webhookId": "600be97a-298e-4547-9fa8-e8b59750d970",
+      "credentials": {
+        "telegramApi": {
+          "id": "az8ny08htpaxEG3C",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.item.json.message.text;\nconst match = text.match(/(?:v=|youtu\\.be\\/)([a-zA-Z0-9_-]{11})/);\nconst videoId = match ? match[1] : null;\n\nreturn [{ json: { \n  videoId: videoId, \n  chatId: $input.item.json.message.chat.id,\n  originalText: text \n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cb9fa2b8-90f8-4aaf-a540-15bbdd2bdf08",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR API KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Summarize this YouTube video transcript in 5 bullet points IN ENGLISH ONLY. Even if the transcript is in another language, always respond in English. Start with 1 sentence about what the video is about.\\n\\nTranscript: {{ $('HTTP Request1').item.json.content.substring(0, 3000) }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        688,
+        0
+      ],
+      "id": "6fc740a4-05af-4fce-9cfe-c1aa78532d26",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript').item.json.chatId }}",
+        "text": "={{ $json.choices[0].message.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        0
+      ],
+      "id": "087f9de5-aeea-433e-ac10-511ec29cc0d4",
+      "name": "Send a text message",
+      "webhookId": "1d2a7164-68a2-476e-b5fe-e1ebacd63d2c",
+      "credentials": {
+        "telegramApi": {
+          "id": "az8ny08htpaxEG3C",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.supadata.ai/v1/youtube/transcript?videoId={{ $json.videoId }}&text=true",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "YOUR SUPA API KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "5f754ea0-c22c-4041-b40f-3185120994e3",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "b263d464-ab0a-4ff8-a3f1-5d7396063106",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "146db652e36602a90b8a502341cd43b86bf53c1bd0da257eb357476b0a0861ad"
+  },
+  "id": "vo05yrLms0H2putY",
+  "tags": []
+}
