@@ -97,11 +97,15 @@ youtube-summarizer-bot/
 
 ---
 
+
+
 ## 📸 Workflow Screenshot
 
-> Add a screenshot of your n8n canvas here (Export → take a screenshot → upload to screenshots/ folder)
+![n8n Workflow](n8n-workflow.png)
 
----
+## 💬 Bot in Action
+
+![Telegram Demo](telegram-demo.png)
 
 ## 🚀 Future Improvements
 
@@ -124,10 +128,10 @@ youtube-summarizer-bot/
 
 ## 👨‍💻 Author
 
-**Rishav** — BTech Student  
-Built as a personal automation project to learn n8n and AI APIs.
+**Rishav Bothra**  
+Built as a personal automation project to learn n8n automation and AI APIs.
 
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black)](https://github.com/Rishav504)
+
 
 ---
 
